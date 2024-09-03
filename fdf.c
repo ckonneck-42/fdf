@@ -6,7 +6,7 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 11:32:12 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/09/03 11:36:40 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:26:20 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ void	my_mlx_pixel_put(t_data *data, float x, float y, int color, int size)
 		}
 	}
 }
-int	ft_close(int keycode, t_vars *vars)
+int	ft_close(int keycode, t_data *data)
 {
 	int	i;
 
@@ -43,12 +43,29 @@ int	ft_close(int keycode, t_vars *vars)
 		}
 	}
 	if (keycode == K_ESC)
-	{
-		mlx_destroy_window(vars->mlx, vars->win);
+    {
+        mlx_clear_window(data->mlx, data->win);
+        mlx_destroy_image(data->mlx, data->img);
+        mlx_destroy_window(data->mlx, data->win);
+        mlx_loop_end(data->mlx);  // End the mlx loop
+        mlx_destroy_display(data->mlx);  // Custom function, if supported
+        free(data->mlx);  // Free the mlx context
 		exit(0);
 	}
 	else
 		return (0);
+}
+
+int close_window(t_data *data)
+{
+	 mlx_clear_window(data->mlx, data->win);
+        mlx_destroy_image(data->mlx, data->img);
+        mlx_destroy_window(data->mlx, data->win);
+        mlx_loop_end(data->mlx);  // End the mlx loop
+        mlx_destroy_display(data->mlx);  // Custom function, if supported
+        free(data->mlx);  // Free the mlx context
+
+    exit(0);
 }
 
 // int	notify(void)
@@ -102,16 +119,15 @@ void zoom_point(float *x, float *y, float zoom) {
     *y *= zoom;
 }
 
-int	main(void)
+int	main(int argc, char **argv)
 {
-	//  if (argc != 2)
-    // {
-    //     ft_printf("Usage: %s <filename>\n", argv[0]);
-    //     return (1);
-    // }
+	 if (argc != 2)
+    {
+        ft_printf("Usage: %s <filename>\n", argv[0]);
+        return (1);
+    }
 	t_data	data;
-	t_vars	vars;
-	// data.filename = argv[1];
+	data.filename = argv[1];
 	data.colours = 2290000; // turquoise
 	data.mlx = mlx_init();
 	data.win = mlx_new_window(data.mlx, 1920, 1080, "FdF");
@@ -119,13 +135,14 @@ int	main(void)
 	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel,
 			&data.line_length, &data.endian);
 	data.angle = 0.0;
+	data.angle_x = PI / 6;
+	data.angle_y = 0.0;
     data.zoom = 1;
-	vars.mlx = data.mlx;
-	vars.win = data.win;
 	// initialize_data(&data);
-	pixel2(&data);
-	mlx_hook(vars.win, 2, 1L << 0, ft_close, &vars);
-	mlx_key_hook(vars.win, keypress, &data);
+	pixel2(&data, data.filename);
+	mlx_hook(data.win, 17, 0, close_window, &data);
+	mlx_hook(data.win, 2, 1L << 0, ft_close, &data);
+	mlx_key_hook(data.win, keypress, &data);
 	mlx_loop(data.mlx);
 	return (0);
 }
@@ -139,13 +156,44 @@ void print2DArray(Coordinate *arr[], int rows, int cols) {
     }
 }
 
-void initialize_data(t_data *data) {
+void initialize_data(t_data *data, const char *filename) {
 	data->cols = 0;
-    data->rows = numbercount("./test_maps/pyramide.fdf" , &data->cols);
+    data->rows = numbercount(data->filename , &data->cols);
     data->coordinates = allocateCoordinates(data->rows, data->cols);
     data->x = 700; // Initial x position
     data->y = 300; // Initial y position
 }
+
+void rotate_point_3d(float *x, float *y, float *z, float angle_x, float angle_y) {
+    float temp_x = *x;
+    float temp_y = *y;
+    float temp_z = *z;
+
+    // Rotate around the x-axis (pitch)
+    *y = temp_y * cos(angle_x) - temp_z * sin(angle_x);
+    *z = temp_y * sin(angle_x) + temp_z * cos(angle_x);
+
+    // Rotate around the y-axis (yaw)
+    *x = temp_x * cos(angle_y) + temp_z * sin(angle_y);
+    *z = -temp_x * sin(angle_y) + temp_z * cos(angle_y);
+	//   printf("Rotated point: (%f, %f, %f)\n", *x, *y, *z);
+}
+void calculate_center(t_data *data, float *center_x, float *center_y) {
+    *center_x = 1920 / 2; // Assuming the width of the image is 1920
+    *center_y = 1080 / 2; // Assuming the height of the image is 1080
+}
+void translate_to_origin(float *x, float *y, float center_x, float center_y) {
+    *x -= center_x;
+    *y -= center_y;
+}
+void translate_back(float *x, float *y, float center_x, float center_y) {
+    *x += center_x;
+    *y += center_y;
+}
+
+
+
+
 
 // void redraw(t_data *data) {
 // 	ft_printf("Redrawing...\n");

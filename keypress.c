@@ -6,7 +6,7 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 14:16:18 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/09/03 11:35:41 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/03 18:44:05 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,22 @@
 int keypress(int keycode, t_data *data) {
 
     if (keycode == K_ARRLFT) // Left arrow key
-        data->angle -= 0.1;
+        data->angle_y -= 0.1;
     else if (keycode == K_ARRRGT) // Right arrow key
-        data->angle += 0.1;
+        data->angle_y += 0.1;
     else if (keycode == K_ARRUP) // Up arrow key
-        data->zoom += 0.1;
+        data->angle_x -= 0.1;
     else if (keycode == K_ARRDWN) // Down arrow key
-        data->zoom -= 0.1;
-    mlx_clear_window(data->mlx, data->win);
-	// printf("zoom: %f\n", data->zoom);
-    pixel2(data);
+        data->angle_x += 0.1;
+    else if (keycode == K_P && data->zoom > 0.1)
+         data->zoom += 0.1;
+    else if(keycode == K_P && data->zoom < 0.1)
+            data->zoom += 0.01;  
+    else if (keycode == K_M && data->zoom > 0.1)
+         data->zoom -= 0.1;
+    else if(keycode == K_M && data->zoom < 0.1)
+        data->zoom -= 0.01;
+    pixel2(data, data->filename);
     
     return (0);
 }

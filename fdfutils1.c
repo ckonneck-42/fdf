@@ -6,7 +6,7 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/02 10:22:21 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/09/02 14:47:48 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/03 17:21:39 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,9 @@ int	numbercount(const char *filename, int *cols)
 		}
 		if (current_ints_in_line > max_ints_in_line)
 			max_ints_in_line = current_ints_in_line;
+		free(line);
 	}
+	
 	// ft_printf("lines: %d, numbers: %d\n",linecount, max_ints_in_line );
 	close(fd);
 	*cols = max_ints_in_line;
@@ -77,7 +79,7 @@ Coordinate	**allocateCoordinates(int rows, int cols)
 		}
 		for (int j = 0; j < cols; j++)
         {
-            coordinates[i][j].z = -1; // Sentinel value
+            coordinates[i][j].z = 2147483648; // Sentinel value
         }
 	}
 	return (coordinates);
