@@ -6,13 +6,13 @@
 #    By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/08/28 11:07:45 by ckonneck          #+#    #+#              #
-#    Updated: 2024/08/29 15:44:46 by ckonneck         ###   ########.fr        #
+#    Updated: 2024/09/02 10:38:09 by ckonneck         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 # Source files for FdF
-FdF_SRCS = fdf.c keypress.c putpixel.c
+FdF_SRCS = fdf.c keypress.c putpixel.c fdfutils1.c
 FdF_OBJS = $(FdF_SRCS:.c=.o)
 CC = cc
 LIBFT_DIR = ./libft

@@ -6,36 +6,41 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 11:32:12 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/08/30 15:30:43 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/03 11:36:40 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-void	my_mlx_pixel_put(t_data *data, int x, int y, int color, int size)
+void	my_mlx_pixel_put(t_data *data, float x, float y, int color, int size)
 {
 	char	*dst;
 
-	for (int i = 0; i < size; i++) {
-		for (int j = 0; j < size; j++) {
-			if (x + i >= 0 && x + i < 1920 && y + j >= 0 && y + j < 1080) {
-				dst = data->addr + ((y + j) * data->line_length + (x + i) * (data->bits_per_pixel / 8));
-				*(unsigned int*)dst = color;
+	for (int i = 0; i < size; i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			if (x + i >= 0 && x + i < 1920 && y + j >= 0 && y + j < 1080)
+			{
+				dst = data->addr + ((int)(y + j) * data->line_length + (int)(x + i)
+						* (data->bits_per_pixel / 8));
+				*(unsigned int *)dst = color;
 			}
 		}
 	}
 }
 int	ft_close(int keycode, t_vars *vars)
 {
-		if (keycode == K_ALT)
+	int	i;
+
+	if (keycode == K_ALT)
 	{
-		int i = 0;
-		while ( i <10)
+		i = 0;
+		while (i < 10)
 		{
 			ft_printf("i love tudor\n");
 			i++;
 		}
-		
 	}
 	if (keycode == K_ESC)
 	{
@@ -86,42 +91,119 @@ int	ft_close(int keycode, t_vars *vars)
 // 	return (0);
 // }
 
+void rotate_point(float *x, float *y, float angle) {
+    float temp_x = *x;
+    *x = *x * cos(angle) - *y * sin(angle);
+    *y = temp_x * sin(angle) + *y * cos(angle);
+}
 
+void zoom_point(float *x, float *y, float zoom) {
+    *x *= zoom;
+    *y *= zoom;
+}
 
 int	main(void)
 {
+	//  if (argc != 2)
+    // {
+    //     ft_printf("Usage: %s <filename>\n", argv[0]);
+    //     return (1);
+    // }
 	t_data	data;
 	t_vars	vars;
-	data.colours = 2290000;//turquoise
+	// data.filename = argv[1];
+	data.colours = 2290000; // turquoise
 	data.mlx = mlx_init();
-	data.win = mlx_new_window(data.mlx, 1920, 1080, "Hello world!");
+	data.win = mlx_new_window(data.mlx, 1920, 1080, "FdF");
 	data.img = mlx_new_image(data.mlx, 1920, 1080);
-	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel, &data.line_length, &data.endian);
-	data.x = 700;//
-	data.y = 300;// 
+	data.addr = mlx_get_data_addr(data.img, &data.bits_per_pixel,
+			&data.line_length, &data.endian);
+	data.angle = 0.0;
+    data.zoom = 1;
 	vars.mlx = data.mlx;
 	vars.win = data.win;
-	// pixel(&data);
+	// initialize_data(&data);
 	pixel2(&data);
 	mlx_hook(vars.win, 2, 1L << 0, ft_close, &vars);
-	// mlx_key_hook(data.win, keypress, &data);
+	mlx_key_hook(vars.win, keypress, &data);
 	mlx_loop(data.mlx);
-	
 	return (0);
 }
 
+void print2DArray(Coordinate *arr[], int rows, int cols) {
+    for(int i = 0; i < rows; i++) {
+        for(int j = 0; j < cols; j++) {
+            printf("(%f, %f, %f) ", arr[i][j].x, arr[i][j].y, arr[i][j].z);
+        }
+        printf("\n");
+    }
+}
 
+void initialize_data(t_data *data) {
+	data->cols = 0;
+    data->rows = numbercount("./test_maps/pyramide.fdf" , &data->cols);
+    data->coordinates = allocateCoordinates(data->rows, data->cols);
+    data->x = 700; // Initial x position
+    data->y = 300; // Initial y position
+}
+
+// void redraw(t_data *data) {
+// 	ft_printf("Redrawing...\n");
+
+// 	// print2DArray(data->coordinates, data->rows, data->prev_x);
+//     mlx_clear_window(data->mlx, data->win);
+//     mlx_destroy_image(data->mlx, data->img);
+//     data->img = mlx_new_image(data->mlx, 1920, 1080);
+//     data->addr = mlx_get_data_addr(data->img, &data->bits_per_pixel, &data->line_length, &data->endian);
+
+//     for (int i = 0; i <= data->rows; i++) {
+//         for (int j = 0; j <= data->prev_x; j++) {
+//             float x = data->coordinates[i][j].x;
+//             float y = data->coordinates[i][j].y;
+//             float z = data->coordinates[i][j].z;
+
+//             // Apply zoom
+//             zoom_point(&x, &y, data->zoom);
+
+//             // Apply rotation
+//             rotate_point(&x, &y, data->angle);
+// 			data->coordinates[i][j].x = x;
+//             data->coordinates[i][j].y = y;
+//             // Check if the coordinates are within the window bounds
+            
+//                 my_mlx_pixel_put(data, (int)x, (int)y, data->colours, 2);
+
+//                 // Draw lines between points
+//                 if (i > 0 && j > 0) {
+//                     if (i < data->rows && j < data->prev_x) {
+//                         putlines(data, data->coordinates[i-1][j].x, data->coordinates[i][j].x,
+//                                  data->coordinates[i-1][j].y, data->coordinates[i][j].y);
+//                         putlines(data, data->coordinates[i][j-1].x, data->coordinates[i][j].x,
+//                                  data->coordinates[i][j-1].y, data->coordinates[i][j].y);
+//                     } else {
+//                         printf("Skipping out-of-bounds coordinates: i = %d, j = %d\n", i, j);
+//                     }
+//                 }
+            
+            
+//         }
+//     }
+
+//     // Put the image to the window
+//     mlx_put_image_to_window(data->mlx, data->win, data->img, 0, 0);
+// }
 // 	t_vars vars;
 
-	// vars.mlx = mlx_init();
-	// vars.win = mlx_new_window(vars.mlx, 1920, 1080, "Hello world!");
-	// mlx_hook(vars.win, 2, 1L << 0, ft_close, &vars);
-	// mlx_hook(vars.win, 7, 1L << 4, notify, &vars);
-	// mlx_hook(vars.win, 8, 1L << 5, notify2, &vars);
-	// mlx_mouse_hook(vars.win, mouse_hook, &vars);
-	// mlx_hook(vars.win, 6, 1L << 6, mouse_move, &vars); // 1L<<6 is the mask for mouse motion
-	// mlx_key_hook(vars.win, keypress, &vars);
-	// mlx_loop(vars.mlx);
+// vars.mlx = mlx_init();
+// vars.win = mlx_new_window(vars.mlx, 1920, 1080, "Hello world!");
+// mlx_hook(vars.win, 2, 1L << 0, ft_close, &vars);
+// mlx_hook(vars.win, 7, 1L << 4, notify, &vars);
+// mlx_hook(vars.win, 8, 1L << 5, notify2, &vars);
+// mlx_mouse_hook(vars.win, mouse_hook, &vars);
+// mlx_hook(vars.win, 6, 1L << 6, mouse_move, &vars);
+	// 1L<<6 is the mask for mouse motion
+// mlx_key_hook(vars.win, keypress, &vars);
+// mlx_loop(vars.mlx);
 
 // data.colours = 16711680; // Red
 // data.colours = 65280;    // Green
