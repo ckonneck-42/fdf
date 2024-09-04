@@ -6,12 +6,11 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/01 11:52:18 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/08/30 11:00:37 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/04 15:43:30 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
-
 
 void	*ft_memmove(void *dst, const void *src, size_t n)
 {
