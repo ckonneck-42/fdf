@@ -6,7 +6,7 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 11:32:12 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/09/04 17:25:47 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/05 15:15:05 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,13 @@ int	main(int argc, char **argv)
 {
 	t_data	data;
 
-	if (argc != 2)
+	if (argc != 3)
 	{
-		ft_printf("Usage: %s <filename>\n", argv[0]);
+		ft_printf("Usage: ./fdf <filename>, 1 for oblique");
+		ft_printf(", 2 for isometric projection \n");
 		return (1);
 	}
+	data.mode = ft_atoi(argv[2]);
 	validate_file(argv);
 	data.filename = argv[1];
 	base_init(&data);
@@ -32,10 +34,8 @@ int	main(int argc, char **argv)
 	return (0);
 }
 
-void base_init(t_data *data)
+void	base_init(t_data *data)
 {
-	data->map_width = 1920;
-	data->map_height = 1080;
 	data->check = 0;
 	data->colours = 2290000;
 	data->offset_x = 0;
@@ -51,7 +51,7 @@ void base_init(t_data *data)
 	data->zoom = 1;
 }
 
-void validate_file(char **argv)
+void	validate_file(char **argv)
 {
 	int	fd;
 
@@ -59,10 +59,19 @@ void validate_file(char **argv)
 	if (fd < 0)
 	{
 		ft_printf("Couldn't read file \"%s\"\n", argv[1]);
-		exit (-1);
+		exit(-1);
 	}
-		
 }
+
+void	initialize_data(t_data *data, const char *filename)
+{
+	data->cols = 0;
+	data->rows = numbercount(data->filename, &data->cols);
+	data->coordinates = allocatecoordinates(data->rows, data->cols);
+	data->x = 960;
+	data->y = 540;
+}
+
 // data.colours = 16711680; // Red
 // data.colours = 65280;    // Green
 // data.colours = 255;      // Blue

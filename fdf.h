@@ -6,7 +6,7 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/28 11:35:04 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/09/04 17:24:56 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/05 15:03:50 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,11 +82,13 @@ typedef struct s_data
 	int				cols;
 	const char		*filename;
 	int				check;
-	int				map_width;
-	int				map_height;
+	int				mode;
 	t_Coordinate	**coordinates;
 }					t_data;
 
+void				draw_point_iso(t_data *data, float source_x, float source_y,
+						float source_z);
+char				*hex_parsing(t_data *data, char *ptr);
 int					ft_atoi_base(const char *str, int str_base);
 void				validate_file(char **argv);
 void				base_init(t_data *data);
@@ -113,5 +115,5 @@ int					keypress(int keycode, t_data *data);
 void				my_mlx_pixel_put(t_data *data, float x, float y, int size);
 void				putlines(t_data *data);
 void				freecall(t_Coordinate **coordinates, int rows);
-t_Coordinate		**allocateCoordinates(int rows, int cols);
+t_Coordinate		**allocatecoordinates(int rows, int cols);
 void				addcoordinate(t_data *data, float x, float y, float z);

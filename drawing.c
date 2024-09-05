@@ -6,7 +6,7 @@
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/04 13:02:05 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/09/04 17:54:43 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/05 15:18:26 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,17 +39,6 @@ int	draw_map(t_data *data, const char *filename)
 	return (0);
 }
 
-// void	draw_point(t_data *data, float source_x, float source_y, float source_z)
-// {
-// 	data->angle = PI / 6;
-//     float projected_x = (source_x - source_y) * cos(data->angle);
-//     float projected_y = (source_x + source_y) * sin(data->angle) - source_z;
-
-//     addcoordinate(data, projected_x + data->offset_x,
-// 		projected_y + data->offset_y, source_z);
-//     my_mlx_pixel_put(data, projected_x, projected_y, 0);
-// }
-
 void	draw_point(t_data *data, float source_x, float source_y, float source_z)
 {
 	float	projected_x;
@@ -59,10 +48,10 @@ void	draw_point(t_data *data, float source_x, float source_y, float source_z)
 		+ source_z * cos(data->angle - 2);
 	projected_y = source_x * sin(data->angle) + source_y * sin(data->angle + 2)
 		+ source_z * sin(data->angle - 2);
-	addcoordinate(data, projected_x + data->offset_x,
-		projected_y + data->offset_y, source_z);
-	my_mlx_pixel_put(data, projected_x, projected_y, 0);
+	addcoordinate(data, projected_x + data->offset_x, projected_y
+		+ data->offset_y, source_z);
 }
+// my_mlx_pixel_put(data, projected_x, projected_y, 0);
 
 void	putlines(t_data *data)
 {
@@ -103,21 +92,9 @@ char	*parse_and_pointer(t_data *data, char *ptr, char *z_str)
 		free(z_str);
 	}
 	else if (*ptr == ',')
-	{
-		data->check = 1;
-		ptr++;
-        char hex_str[9];
-        int i = 0;
-        while (*ptr != ' ' && *ptr != '\0' && i < 8)
-            hex_str[i++] = *ptr++;
-        hex_str[i] = '\0';
-        if (hex_str[0] == '0' && hex_str[1] == 'x')
-            data->colours = ft_atoi_base(hex_str + 2, 16);
-        else
-            data->colours = ft_atoi_base(hex_str, 16);
-	}
+		ptr = hex_parsing(data, ptr);
 	else
-		ptr += 1;
+		ptr++;
 	return (ptr);
 }
 
@@ -144,33 +121,3 @@ void	my_mlx_pixel_put(t_data *data, float x, float y, int size)
 		i++;
 	}
 }
-
-//BACKUP
-
-// void	draw_point(t_data *data, float source_x, float source_y, float source_z)
-// {
-// 	float	projected_x;
-// 	float	projected_y;
-
-// 	projected_x = source_x * cos(data->angle) + source_y * cos(data->angle + 2)
-// 		+ source_z * cos(data->angle - 2);
-// 	projected_y = source_x * sin(data->angle) + source_y * sin(data->angle + 2)
-// 		+ source_z * sin(data->angle - 2);
-// addcoordinate(data, projected_x + data->offset_x,
-//		projected_y + data->offset_y, source_z);
-// 	my_mlx_pixel_put(data, projected_x, projected_y, 0);
-// }
-
-// void draw_pointiso(t_data *data, float source_x,
-// float source_y,	float source_z, int color, int size, float angle,
-
-// 		Coordinate **coordinates, float angle_x, float angle_y ) {
-
-// 		float projected_x = source_x + cos(angle) * source_z;
-// 		float projected_y = source_y + sin(angle) * source_z;
-// 	addcoordinate(data, projected_x + data->offset_x,
-//		projected_y + data->offset_y, source_z);
-
-//     my_mlx_pixel_put(data, projected_x, projected_y, color, size);
-
-// }

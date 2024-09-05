@@ -1,90 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fdfutils1.c                                        :+:      :+:    :+:   */
+/*   coordinates.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ckonneck <ckonneck@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/02 10:22:21 by ckonneck          #+#    #+#             */
-/*   Updated: 2024/09/04 13:05:44 by ckonneck         ###   ########.fr       */
+/*   Updated: 2024/09/05 11:15:31 by ckonneck         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "fdf.h"
 
-int	numbercount2(int *linecount, int fd, char *ptr, int current_ints_in_line)
-{
-	int		max_ints_in_line;
-	char	*line;
-
-	max_ints_in_line = 0;
-	while ((line = get_next_line(fd)) != NULL)
-	{
-		(*linecount)++;
-		current_ints_in_line = 0;
-		ptr = line;
-		while (*ptr)
-		{
-			if (ft_isdigit(*ptr) || (*ptr == '-' && ft_isdigit(*(ptr + 1))))
-			{
-				current_ints_in_line++;
-				while (ft_isdigit(*ptr) || *ptr == '-')
-					ptr++;
-			}
-			else
-				ptr++;
-		}
-		if (current_ints_in_line > max_ints_in_line)
-			max_ints_in_line = current_ints_in_line;
-		free(line);
-	}
-	return(max_ints_in_line);
-}
-
-int	numbercount(const char *filename, int *cols)
-{
-	int		fd;
-	char	*ptr;
-	int		linecount;
-	int		max_ints_in_line;
-	int		current_ints_in_line;
-
-	current_ints_in_line = 0;
-	max_ints_in_line = 0;
-	linecount = 0;
-	fd = open(filename, O_RDONLY);
-	if (fd < 0)
-		return (-1);
-	max_ints_in_line = numbercount2(&linecount, fd, ptr, current_ints_in_line);
-	close(fd);
-	*cols = max_ints_in_line;
-	return (linecount);
-}
-
-t_Coordinate	**allocateCoordinates(int rows, int cols)
+t_Coordinate	**allocatecoordinates(int rows, int cols)
 {
 	t_Coordinate	**coordinates;
+	int				i;
+	int				j;
 
-	// Allocate memory for the array of pointers to rows
+	i = 0;
 	coordinates = (t_Coordinate **)malloc(rows * sizeof(t_Coordinate *));
 	if (coordinates == NULL)
 	{
 		ft_printf("Memory allocation failed for rows\n");
 		exit(1);
 	}
-	// Allocate memory for each row
-	for (int i = 0; i < rows; i++)
+	while (i < rows)
 	{
 		coordinates[i] = (t_Coordinate *)malloc(cols * sizeof(t_Coordinate));
 		if (coordinates[i] == NULL)
-		{
-			ft_printf("Memory allocation failed for row %d\n", i);
 			exit(1);
-		}
-		for (int j = 0; j < cols; j++)
+		j = 0;
+		while (j < cols)
 		{
-			coordinates[i][j].z = 2147483648; // Sentinel value
+			coordinates[i][j].z = 2147483648;
+			j++;
 		}
+		i++;
 	}
 	return (coordinates);
 }
@@ -96,12 +48,42 @@ void	addcoordinate(t_data *data, float x, float y, float z)
 	data->coordinates[data->rows][data->cols].z = z;
 }
 
+void	assign_coloums(t_data *data)
+{
+	if (data->cols > 0 && data->coordinates[data->rows]
+		[data->cols - 1].z != 2147483648)
+	{
+		data->x1 = data->coordinates[data->rows][data->cols - 1].x;
+		data->x2 = data->coordinates[data->rows][data->cols].x;
+		data->y1 = data->coordinates[data->rows][data->cols - 1].y;
+		data->y2 = data->coordinates[data->rows][data->cols].y;
+		data->z1 = data->coordinates[data->rows][data->cols - 1].z;
+		data->z2 = data->coordinates[data->rows][data->cols].z;
+		putlines(data);
+	}
+}
+
+void	assign_rows(t_data *data)
+{
+	if (data->rows > 0 && data->coordinates[data->rows - 1]
+		[data->cols].z != 2147483648)
+	{
+		data->x1 = data->coordinates[data->rows - 1][data->cols].x;
+		data->x2 = data->coordinates[data->rows][data->cols].x;
+		data->y1 = data->coordinates[data->rows - 1][data->cols].y;
+		data->y2 = data->coordinates[data->rows][data->cols].y;
+		data->z1 = data->coordinates[data->rows - 1][data->cols].z;
+		data->z2 = data->coordinates[data->rows][data->cols].z;
+		putlines(data);
+	}
+}
+
 void	freecall(t_Coordinate **coordinates, int rows)
 {
-	int i;
+	int	i;
 
 	i = 0;
-	while(i < rows)
+	while (i < rows)
 	{
 		free(coordinates[i]);
 		i++;
